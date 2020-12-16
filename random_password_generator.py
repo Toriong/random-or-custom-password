@@ -3,10 +3,34 @@ from password_character_selection import all_options, special_characters, alphab
 
 import random
 
-import re
+errors_ = []
+
+def custom_password_error_check(password):
+    user_password = password
+
+    if not any(c.islower() for c in user_password):
+        errors_.append("\n*Your password must contain at least one lower case letter.")
+    if not any(c.isupper() for c in user_password):
+        errors_.append("\n*Your password must contain at least one upper case letter.")
+    if not any(c.isdigit() for c in user_password):
+        errors_.append("\n*Your password must contain at least one digit.")
+    if len(user_password) < 7:
+        errors_.append("\n*Your password must contain at least eight characters.")
+    if not any([x in user_password for x in "~!@#$%^&*_+=-?><|"]):
+        errors_.append("\n*Your password must contain at least one special character.")
+    errors_.append(try_again)
+    errors_.insert(0, errors_intro)
+    if len(errors_) >= 3:
+        print(''.join(errors_) )
+        input('(Press ENTER to continue.)')
+        errors_.clear()
+    elif len(errors_) <= 2:
+        return True
+
 
 def parameters_for_random_password(number):
     n = int(number)
+
     if n == 0:
         exit('INVALID ENTRY! Please enter a number greater than 0')
     elif n >= 8 and n <= 20:
@@ -34,27 +58,7 @@ def number_count_for_custom_password(password):
 
     return lcount + dcount + spcount
 
-
-def parameters_for_custom_password(password):
-    user_custom_password = password
-    total_number_check = number_count_for_custom_password(password)
-    spec_char_check = re.compile(special_characters)
-    lower_case_check = re.compile(alphabet_lower)
-    upper_case_check = re.compile(all_caps)
-    number_check = re.compile(numbers)
-    if total_number_check <= 8:
-        print('INVALID entry! Your password must be longer than 8 characters. Please try again.')
-    elif spec_char_check.search(user_custom_password) == None:
-        print('INVALID entry! You password must contain at least one special character. Please try again')
-    elif lower_case_check.search(user_custom_password) == None:
-        print('INVALID entry! Your password must contain at least one lower case letter. Please try again.')
-    elif upper_case_check.search(user_custom_password) == None:
-        print('INVALID entry! Your password must contain at least one upper case letter. Please try again.')
-    elif number_check.search(user_custom_password) == None:
-        print('INVALID entry! Your password must contain at least a number. Please try again.')
-
-
-
+custom_made_password = str('')
 
 def translate(password_as_list):
     translation = ''
@@ -68,7 +72,6 @@ def translate(password_as_list):
 
 
 
-
 def random_password_save(answer):
     user_answer = answer
     if user_answer == 'S' or 'K':
@@ -78,14 +81,9 @@ def random_password_save(answer):
     else:
         exit('ERROR! Invalid input!')
 
-def custom_password_save(answer):
-    user_answer = answer
-    if user_answer == 'S' or 'K':
-        print('\nOk. Your password (not including the brackets) [' + custom_made_password + '] has been saved. ')
-    elif user_answer == 'D':
-        print('\nOk. Type your new password below.')
-    else:
-        exit('ERROR! Invalid input!')
+
+
+
 
 question_one = int(input('How many elements/characters do you want in your passsword?  '
                   'Enter a number: '))
@@ -109,7 +107,7 @@ while not done:
     user_password_random = (translate(length_as_list))
     potential_password = print('\nHere\'s your randomly generated password: ' + '\n' + str(user_password_random) )
     keep_reject_custom = input('\nWould you like to keep and save this password, generate a new one, or create your own.'
-                           '\n(TYPE \'K\' to keep or \'G\' to generate a new one or \'C\' to create your own.'
+                           '\n(TYPE \'K\' to keep or \'G\' to generate a new one or \'C\' to create your own.)'
                            '\nANSWER: ').upper()
     if keep_reject_custom == 'K':
         random_password_save(keep_reject_custom)
@@ -125,28 +123,70 @@ while not done:
 
 
 print('')
-custom_made_password = str(input('Password: '))
-parameters_for_custom_password(custom_made_password)
+
+try_again = '\nPlease try again.'
+errors_intro = '\nYour password is missing the following: '
+
+done = False
+
+
+done_two = False
+
+
+
+
+
+
+
+
+
+
+
+condition = 0
 
 
 
 while not done:
-    your_custom_made_password = input('\nYour password is: \n' + str(custom_made_password) +
-                                      '\nWould you like to save your'
-                                    ' custom made password? Or discard to type a new password?'
-                                    '\n(TYPE S to save it or TYPE D to discard it to type a new password.)'
-                                    '\nANSWER: ').upper()
-    if your_custom_made_password == 'S':
-        custom_password_save(custom_made_password)
-        break
-    elif your_custom_made_password == 'D':
-        print('\nOk. Type in your password below.')
-        done = False
-    else:
-        print('INVALID input! Re-type your desired password.')
+    print('\n(Password\'s parameters:'
+          '\n*contain at least one lower case letter.'
+          '\n*contain at least one upper case letter.'
+          '\n*contain at least one digit.'
+          '\n*contain at least one special character.'
+          '\n*must be greater than 7 characters and less than 21 characters.)')
+    user_password = str(input('\nPassword: '))
+
+    if custom_password_error_check(user_password):
+        if len(errors_) >= 3:
+            errors_.clear()
+            done = False
+        elif len(errors_) == 2:
+            errors_.clear()
+            if any(c.islower() for c in user_password) and any(c.isupper() for c in user_password) and \
+            any(c.isdigit() for c in user_password) and len(user_password) >= 8 and \
+            any([x in user_password for x in "~!@#$%^&*_+=-?><|"]):
+                p_or_c = input('\nYour password has met all of the parameters. Would you like to '
+                               'proceed with this password and save it or discard it to create a new one? '
+                               '(TYPE P to proceed or C to discard the current password in order to create another. \n ANSWER: ').upper()
+                while not done_two:
+                    if p_or_c == 'P':
+                        print('\nOk.')
+                        break
+                    elif p_or_c == 'C':
+                        print('Ok. Password has been discarded. Create your password below.')
+                        condition += 1
+                        break
+                    else:
+                        print('INVALID input! Please enter a valid input. Will now reset to password prompt.')
+                        condition += 1
+                        break
+    if condition == 1:
+        condition -= 1
+
+    elif any(c.islower() for c in user_password) and any(c.isupper() for c in user_password) and \
+            any(c.isdigit() for c in user_password) and len(user_password) >= 8 and \
+            any([x in user_password for x in "~!@#$%^&*_+=-?><|"]):
+        done = True
 
 
-
-
-
-
+saved_password = user_password
+print('Your password: \n' + user_password + '\nhas been saved. ')
